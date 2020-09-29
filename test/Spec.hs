@@ -93,4 +93,18 @@ tests = testGroup "All tests"
             case Lib.recordTypeFromDict dict of
               Right _  -> False
               Left err -> Lib.nonSymbolKeys err == [k1]
+  , testProperty "Dict with a non-type value cannot be used as record type" $
+    \s1 s2 s3 ->
+      s1 /= s2 ==>
+        let k1         = symbolTerm s1
+            k2         = symbolTerm s2
+            v1         = Lib.TypeTerm Lib.SymbolType
+            v2         = symbolTerm s3
+            resultDict = Lib.dictFromPairs [Lib.Pair k1 v1, Lib.Pair k2 v2]
+        in case resultDict of
+          Left _     -> False
+          Right dict ->
+            case Lib.recordTypeFromDict dict of
+              Right _  -> False
+              Left err -> Lib.nonTypeValues err == [v2]
   ]
