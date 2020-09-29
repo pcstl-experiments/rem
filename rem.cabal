@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 13617300231f5edaf784fdb25d1396f28aceca914f2b8255d138dbad3571e1ec
+-- hash: a1c2c05ecb4269b023e640884eedd04188201a41d80299664a7a3cb580dfa65c
 
 name:           rem
 version:        0.1.0.0
@@ -35,6 +35,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , vector
   default-language: Haskell2010
 
 executable rem-exe
@@ -48,6 +49,7 @@ executable rem-exe
       base >=4.7 && <5
     , containers
     , rem
+    , vector
   default-language: Haskell2010
 
 test-suite rem-test
@@ -65,4 +67,5 @@ test-suite rem-test
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
   default-language: Haskell2010

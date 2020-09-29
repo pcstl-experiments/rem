@@ -1,7 +1,9 @@
 {- TODO
  - Dicts are implemented.
- - There is a naive implementation of records (which will be used as modules).
- - Define a representation for functions.
+ - There is a naive implementation of records (which will be used as modules)
+ - Function representation is defined.
+ - Add tests for block functions.
+ - Start working on function value evaluation.
  - Start working on module value evaluation.
  -}
 
@@ -12,6 +14,22 @@ Base = {
   id = (fn (x) x)
   const = (fn (x) (fn (y) x))
 }
+
+id =>
+  Block $
+    Vector.fromList
+      [
+        SymbolTerm (Symbol "fn")
+      , BlockTerm $
+          Block $
+            Vector.fromList [SymbolTerm (Symbol "x")]
+      , SymbolTerm (Symbol "x")
+      ]
+
+- function evaluation is a feature of record evaluation.
+- if a field of a record is a block starting with symbol 'fn'
+- if its length is 3, then it gets function evaluated.
+- if its length is not 3, then it is an error.
 
 type(Base) -> {
   name = Symbol
@@ -28,6 +46,8 @@ module Lib where
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import Control.Arrow (left)
+
+import qualified Data.Vector as Vec
 
 data Type
   = SymbolType
@@ -58,15 +78,16 @@ recordTypeFromDict (Dict map)
     (typeValues, nonTypeValues) = List.partition isType (Map.elems map)
     rawSymbols = getSymbol <$> symbolKeys
     rawTypes   = getType <$> typeValues
-    
 
 data Symbol = Symbol String deriving (Show, Eq, Ord)
 data Pair   = Pair Term Term deriving (Show, Eq, Ord)
 data Dict   = Dict (Map.Map Term Term) deriving (Show, Eq, Ord)
+data Block  = Block (Vec.Vector Term) deriving (Show, Eq, Ord)
 data Term
   = SymbolTerm { getSymbol :: Symbol }
   | PairTerm   { getPair   :: Pair   }
   | DictTerm   { getDict   :: Dict   }
+  | BlockTerm  { getBlock  :: Block  }
   | TypeTerm   { getType   :: Type   }
   deriving (Show, Eq, Ord)
 
@@ -76,6 +97,12 @@ data DictErr = RepeatedKeys Term Term
 
 emptyDict :: Dict
 emptyDict = Dict Map.empty
+
+emptyBlock :: Block
+emptyBlock = Block Vec.empty
+
+blockFromList :: [Term] -> Block
+blockFromList list = Block (Vec.fromList list)
 
 addToDict :: Term -> Term -> Dict -> Either DictErr Dict
 addToDict key value (Dict map)
